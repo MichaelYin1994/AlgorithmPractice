@@ -82,6 +82,7 @@ class BreadthFirstSearch():
     def breadth_first_search_path(self, targetId):
         marked = [ False ] * self.graph.numVertices
         edgeTo = [ None ] * self.graph.numVertices
+        # 显式的使用队列，保存邻接的顶点
         queue = Queue()
         queue.enqueue(self.graph.vertList[targetId])
         
@@ -96,6 +97,7 @@ class BreadthFirstSearch():
                     edgeTo[vId] = vertice.id
         return edgeTo
     
+    # 基于BFS寻找最短的路径
     def find_shorest_path(self, targetId):
         self.tree = self.breadth_first_search_path(targetId)
         vertList = self.graph.get_vertices()
@@ -196,7 +198,29 @@ class TwoColor():
         self.graph = UndirectedGraph()
         for edge in self.edges:
             self.graph.add_edge(edge[0], edge[1])
-
+    
+    def dfs(self, v):
+        self.marked[v] = True
+        
+        for w in self.graph.vertList[v].connectedTo.keys():
+            wId = w.id
+            if self.marked[wId] == False:
+                self.color[wId] =  not self.color[v]
+                self.dfs(wId)
+            elif self.color[wId] == self.color[v]:
+                self.isTwoColor = True
+                
+    
+    def two_color(self):
+        self.marked = [ False ] * self.graph.numVertices
+        self.color = [ False ] * self.graph.numVertices
+        self.isTwoColorable = False
+        
+        for v in self.graph.vertList.keys():
+            if self.marked[v] == False:
+                self.dfs(v)
+            else:
+                pass
 ###############################################################################
 if __name__ == "__main__":
     edges = read_graph("tinyCG.txt")

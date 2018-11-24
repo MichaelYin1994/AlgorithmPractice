@@ -4,7 +4,8 @@ Created on Fri Nov 23 09:51:06 2018
 
 @author: XPS13
 """
-
+# 深度优先搜索 + 剪枝，if 语句充当剪枝的角色。
+# 第一，注意剪枝的条件；第二，注意套深度优先搜索的模板
 class Solution(object):
     def dfs(self, m, left, right):
         if left < right:
