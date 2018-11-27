@@ -5,7 +5,6 @@ Created on Mon Nov 19 21:16:09 2018
 @author: XPS13
 """
 from UndirectedGraph import UndirectedGraph, read_graph
-#from MyQueue import Queue
 from MyQueue import Queue
 ###############################################################################
 class DepthFirstSearch():
@@ -64,7 +63,9 @@ class DepthFirstSearch():
                 p = p + str(tmp) + "-"
                 tmp = self.tree[tmp]
             print(p + str(targetId))
+            
 ###############################################################################
+# 搜索最短路径，对应最短路径问题
 class BreadthFirstSearch():
     def __init__(self, edges):
         self.edges = edges
@@ -98,9 +99,15 @@ class BreadthFirstSearch():
         return edgeTo
     
     # 基于BFS寻找最短的路径
-    def find_shorest_path(self, targetId):
+    def find_shortest_path(self, targetId):
         self.tree = self.breadth_first_search_path(targetId)
         vertList = self.graph.get_vertices()
+        
+        # 防止不连通的现象发生，self.edgeTo索引为None，发生错误
+        # 代码待修改
+#        if tmp == None:
+#                print(p + "None")
+#                break
         
         for v in vertList:
             p = "\n" + str(targetId) + " to " + str(v) + " :"
@@ -171,19 +178,38 @@ class ConnectedComponents():
 class Cycle():
     def __init__(self, edges):
         self.edges = edges
-        
+        self.hasCycle = False
     def construct_graph(self):
         if len(self.edges) == None:
             print("Empty Edges !")
             return None
-        
+
         # 构建图
         self.graph = UndirectedGraph()
         for edge in self.edges:
             self.graph.add_edge(edge[0], edge[1])
     
+    def dfs(self, father, child):
+        self.marked[father] = True
+        
+        for w in self.graph.vertList[child].connectedTo.keys():
+            wId = w.id
+            if self.marked[wId] == False:
+                self.dfs(child, wId)
+            # 若顶点w出现在child顶点的邻接节点集合里面，
+            # 并且该顶点不是child顶点的父节点，则肯定是带环的。
+            elif wId != father:
+                self.hasCycle = True
+    
     def has_cycle(self):
-        pass
+        self.marked = [False] * self.graph.numVertices
+        
+        for v in self.graph.vertList.keys():
+            if self.marked[v] == False:
+                self.dfs(v, v)
+            else:
+                continue
+        return self.hasCycle
 ###############################################################################
 class TwoColor():
     def __init__(self, edges):
@@ -210,8 +236,7 @@ class TwoColor():
             elif self.color[wId] == self.color[v]:
                 self.isTwoColor = True
                 
-    
-    def two_color(self):
+    def is_two_color(self):
         self.marked = [ False ] * self.graph.numVertices
         self.color = [ False ] * self.graph.numVertices
         self.isTwoColorable = False
@@ -226,18 +251,32 @@ if __name__ == "__main__":
     edges = read_graph("tinyCG.txt")
     edges = edges[2:]
     
+#    # BFS搜索最短路径测试
 #    bfs = BreadthFirstSearch(edges)
 #    bfs.construct_graph()
 #    edgeTo = bfs.find_shorest_path(0)
     
+    # DFS判断图是否连通
 #    dfs = DepthFirstSearch(edges)
 #    dfs.construct_graph()
 #    marked = dfs.is_conected()
 #    dfs.find_path(0)
     
-    cc = ConnectedComponents(edges)
-    cc.construct_graph()
-    cc.calc_connected()
-    print(cc.check_connected(), cc.count())
-    cc.print_components()
-    res = cc.id
+#    # CC判断连通集的个数
+#    cc = ConnectedComponents(edges)
+#    cc.construct_graph()
+#    cc.calc_connected()
+#    print(cc.check_connected(), cc.count())
+#    cc.print_components()
+#    res = cc.id
+    
+    # 判断图是不是有环
+    cycle = Cycle(edges)
+    cycle.construct_graph()
+    print("Is looped?: {}".format(cycle.has_cycle()))
+    
+    # TwoColor判断图是不是双色图
+#    color = TwoColor(edges)
+#    color.construct_graph()
+#    color.is_two_color()
+#    print("Is two colorable: {}".format(color.isTwoColorable))
