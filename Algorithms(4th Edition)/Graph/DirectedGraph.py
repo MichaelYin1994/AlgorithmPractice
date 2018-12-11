@@ -42,7 +42,6 @@ class Vertex():
 # Vertex包含两个主要部分：int类型的id，dict类型的connectedTo。
 # numVertices：顶点的个数。
 # numEdges：边的个数。
-
 class DirectedGraph():
     def __init__(self):
         self.vertList = {}
@@ -69,7 +68,7 @@ class DirectedGraph():
         
         self.vertList[first].add_neighbor(self.vertList[second], weight=weight)
         self.numEdges += 1
-    
+        
     # 返回key对应的顶点
     def get_vertex(self, key):
         if key in self.vertList:
@@ -77,7 +76,7 @@ class DirectedGraph():
         else:
             return None
 
-    # 计算无向图的度数
+    # 计算图的度数
     def degree(self, vertexId):
         if vertexId not in self.vertList.keys():
             return None
@@ -102,7 +101,7 @@ class DirectedGraph():
             totalDegree += tmp
         return totalDegree / self.numVertices if self.numVertices != 0 else 0
     
-    # 计算有向图的反向图
+    # 计算有向图的反向图，返回反向之后的图
     def reverse_graph(self):
         newGraph = DirectedGraph()
         for vId in self.vertList.keys():
@@ -117,7 +116,6 @@ class DirectedGraph():
 
 if __name__ == "__main__":
     g = DirectedGraph()
-    
     edges = read_graph("tinyDG.txt")
     edges = edges[2:]
     for edge in edges:

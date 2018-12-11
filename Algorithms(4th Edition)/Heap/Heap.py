@@ -63,16 +63,15 @@ class MaxHeap():
         return val
 
 if __name__ == "__main__":
-    #testCase = random.sample(range(0, 100000, 1), 30000)
-    testCase = [4, 231, 5, 123, 90, 66]
+    testCase = random.sample(range(0, 1000, 1), 30)
+    #testCase = [4, 231, 5, 123, 90, 66]
     maxSize = len(testCase)
     heap = MaxHeap(maxSize)
     for i in testCase:
         heap.insert(i)
     elements = heap._elements
-    '''
     print("\nExtract results:")
     res = []
     for i in range(maxSize):
         res.append(heap.extract_max())
-    '''
+    print(res)

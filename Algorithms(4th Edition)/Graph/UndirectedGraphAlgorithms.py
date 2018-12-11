@@ -127,7 +127,6 @@ class ConnectedComponents():
         if len(self.edges) == None:
             print("Empty Edges !")
             return None
-        
         # 构建图
         self.graph = UndirectedGraph()
         for edge in self.edges:
@@ -188,7 +187,7 @@ class Cycle():
         self.graph = UndirectedGraph()
         for edge in self.edges:
             self.graph.add_edge(edge[0], edge[1])
-    
+        
     def dfs(self, father, child):
         self.marked[father] = True
         
@@ -214,7 +213,8 @@ class Cycle():
 class TwoColor():
     def __init__(self, edges):
         self.edges = edges
-        
+        self.isTwoColorable = True
+
     def construct_graph(self):
         if len(self.edges) == None:
             print("Empty Edges !")
@@ -227,19 +227,17 @@ class TwoColor():
     
     def dfs(self, v):
         self.marked[v] = True
-        
         for w in self.graph.vertList[v].connectedTo.keys():
             wId = w.id
             if self.marked[wId] == False:
-                self.color[wId] =  not self.color[v]
+                self.color[wId] =  'black' if self.color[v] == 'red' else 'black'
                 self.dfs(wId)
             elif self.color[wId] == self.color[v]:
-                self.isTwoColor = True
+                self.isTwoColor = False
                 
     def is_two_color(self):
         self.marked = [ False ] * self.graph.numVertices
-        self.color = [ False ] * self.graph.numVertices
-        self.isTwoColorable = False
+        self.color = [ 'red' ] * self.graph.numVertices
         
         for v in self.graph.vertList.keys():
             if self.marked[v] == False:
@@ -271,9 +269,9 @@ if __name__ == "__main__":
 #    res = cc.id
     
     # 判断图是不是有环
-    cycle = Cycle(edges)
-    cycle.construct_graph()
-    print("Is looped?: {}".format(cycle.has_cycle()))
+#    cycle = Cycle(edges)
+#    cycle.construct_graph()
+#    print("Is looped?: {}".format(cycle.has_cycle()))
     
     # TwoColor判断图是不是双色图
 #    color = TwoColor(edges)
