@@ -4,23 +4,48 @@ Created on Sun Oct 21 16:39:38 2018
 
 @author: XPS13
 """
-"""
-(1)说明：
-双链表的Python实现，参见网址[1]。实现以下的功能：
-1. traversal：从前往后与从后往前遍历链表
-2. push：在首部增加一个节点
-3. append：在尾部增加一个节点
-4. insert_after：在指定节点后面插入一个节点
-5. remove：移除指定节点
-6. reverse_linked_list：链表翻转
-7. empty_linked_list: 清空链表
+'''
+-------------------------------------------------------------------------------
+Author: Michael Yin
+Modified Date: 2018/12/17
+Mail: zhuoyin94@163.com
+Title: 双链表的实现
+-------------------------------------------------------------------------------
+self.__init__(self):
+    初始化相关参数，输入参数为None，内部初始化self._head, self._tail等相关参数。
 
-(2)Tips: 
+self.__len__(self):
+    返回链表的大小。
+
+self.traversal(self):
+    从前往后与从后往前遍历链表，打印遍历顺序，并返回遍历结果。空链表则抛出异常。
+
+self.push(self, val):
+    在首部增加一个结点。
+
+self.append(self, val):
+    在尾部增加一个结点。
+
+self.insert_after(self, prevNode, val):
+    在指定节点后面插入一个结点。prevNode是结点地址。
+
+self.remove(self, node):
+    移除指定结点。
+
+self.reverse_linked_list(self):
+    链表翻转。
+
+self.empty_linked_list(self):
+    清空链表。
+-------------------------------------------------------------------------------
+Tips: 
 处理的时候主要注意，根据链表是否为空链表，对head与tail进行处理；处理好了head与tail，
 则注意处理好链表桥接的时候的prev与next的问题。
 
+Reference:
 [1] https://www.geeksforgeeks.org/doubly-linked-list/
-"""
+-------------------------------------------------------------------------------
+'''
 ###############################################################################
 class DoublyListNode(object):
     def __init__(self, val):
@@ -28,6 +53,7 @@ class DoublyListNode(object):
         self.next = None
         self.prev = None
 
+###############################################################################
 class DoublyLinkedList(object):
     def __init__(self):
         self._head = None
@@ -38,23 +64,25 @@ class DoublyLinkedList(object):
         return self._size
     
     def traversal(self):
-        if self._head == None:
-            print("Linked list is empty !")
-            return
+        assert self._size != 0, "Traversal from an empty linked list !"
         
         print("\nTraversal forward:")
         currNode = self._head
+        forwardRes = []
         while(currNode != None):
             print(currNode.val)
+            forwardRes.append(currNode.val)
             currNode = currNode.next
         
         print("\nTraversal backward:")
         currNode = self._tail
+        backWardRes = []
         while(currNode != None):
             print(currNode.val)
+            backWardRes.append(currNode.val)
             currNode = currNode.prev
         print("Linked List Size is {}".format(self._size))
-        return
+        return forwardRes, backWardRes
         
     def push(self, val):
         # 增加一个新的结点到链表的首部
@@ -96,9 +124,7 @@ class DoublyLinkedList(object):
             
     def insert_after(self, prevNode, val):
         # 始终注意检查输入条件
-        if prevNode == None or val == None:
-            print("Error input !")
-            return
+        assert prevNode != None or val != None, "Error input !"
         
         newNode = DoublyListNode(val)
         # Step 2: 对prevNode分情况讨论：
@@ -117,10 +143,8 @@ class DoublyLinkedList(object):
         self._size += 1
         return
     
-    def remove(self, node):
-        if node == None:
-            print("Error input !")
-            return
+    def remove(self, node=None):
+        assert node != None, "Error input !"
         
         # Node是尾结点
         if node.next == None and node.prev != None:
@@ -200,7 +224,7 @@ if __name__ == "__main__":
     # 8 --> 12 --> None
     dLinkedList.remove(dLinkedList._head.next)
     
-    # Error input
-    dLinkedList.remove(dLinkedList._head.next.next)
+#    # Error input
+#    dLinkedList.remove(dLinkedList._head.next.next)
     
     dLinkedList.traversal()
