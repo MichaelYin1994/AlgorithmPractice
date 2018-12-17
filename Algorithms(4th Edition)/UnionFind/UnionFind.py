@@ -16,7 +16,7 @@ class union_find_base(object):
         
         lines = f.readlines()
         self.lines = [[0., 0.]] * len(lines)
-        self.treeSize = [1] * len(lines) # 建立数组，用于存储树的高度
+        self.treeSize = [1] * self.arraySize # 建立数组，用于存储树的高度
         for ind, line in enumerate(lines):
             self.lines[ind] = line.replace('\n', '').split(' ')
         f.close()

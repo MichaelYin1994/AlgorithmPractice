@@ -63,7 +63,7 @@ class MaxHeap():
         return val
 
 if __name__ == "__main__":
-    testCase = random.sample(range(0, 1000, 1), 30)
+    testCase = random.sample(range(0, 1000, 1), 80)
     #testCase = [4, 231, 5, 123, 90, 66]
     maxSize = len(testCase)
     heap = MaxHeap(maxSize)
