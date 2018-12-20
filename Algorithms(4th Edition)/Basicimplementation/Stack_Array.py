@@ -10,7 +10,8 @@ Created on Mon Dec 17 22:22:20 2018
 Author: Michael Yin
 Modified Date: 2018/12/17
 Mail: zhuoyin94@163.com
-Title: 后进先出(LIFO)堆栈的数组实现，实现了动态堆栈数组大小调整。
+Title: 后进先出(LIFO)堆栈的数组实现，实现了动态堆栈数组大小调整，始终保持堆栈数的大小
+为最低四分之一满到全满之间。
 -------------------------------------------------------------------------------
 self.__init__(self):
     初始化相关参数，需要输入参数为None，内部初始化self._head, self._stackSize等
@@ -41,9 +42,9 @@ class StackArray():
         # 初始化栈，栈为数组定容栈，栈的大小初始化时固定
         # stackMemorySize代表堆栈数组所占的内存大小(数组长度)，stackSize代表堆栈包含
         # 的元素的个数，arraySize赋值0会索引越界!!!
-        assert arraySize, "Invalid stack size!"
+        assert arraySize, "Invalid input stack size!"
         self._stack = [None] * arraySize
-        self._stackMemorySize = len(self._stack)
+        self._stackArraySize = len(self._stack)
         self._stackSize = 0
         
     def __len__(self):
@@ -59,14 +60,15 @@ class StackArray():
         self._stack[self._stackSize - 1] = None
         self._stackSize -= 1
         
-        # Dangerous!!!
-        if self._stackSize == self._stackMemorySize // 4:
-            self.resize(self._stackMemorySize // 2)
+        # 判断self._stackSize是否为0，若为0，则self._stackArraySize//4 == 0
+        # 1, 2, 3都可能除4余0，其中1//2==0导致数组为空而抛出异常
+        if self._stackSize > 0 and self._stackSize == self._stackArraySize // 4:
+            self.resize(self._stackArraySize // 2)
         return res
         
     def push(self, item):
         # 堆栈数组内存不够，加倍堆栈数组
-        if self._stackSize == self._stackMemorySize:
+        if self._stackSize == self._stackArraySize:
             self.resize(self._stackSize * 2)
         print("\nPush {}".format(item))
         self._stack[self._stackSize] = item
@@ -83,19 +85,38 @@ class StackArray():
             newStack[i] = self._stack[i]
             i += 1
         self._stack = newStack
-        self._stackMemorySize = len(newStack)
+        self._stackArraySize = len(newStack)
         
     def print_stack_info(self):
         print("---------------------------------------------------")
-        print("Stack memory size: {}.".format(self._stackMemorySize))
+        print("Stack array size: {}.".format(self._stackArraySize))
         print("Stack size: {}.".format(self._stackSize))
         print("Stack: {}".format(self._stack))
         print("---------------------------------------------------")
         
 ###############################################################################
 if __name__ == "__main__":
-    stack = StackArray(8)
+    stack = StackArray(1)
     res = []
+    
+    stack.push(6)
+    stack.print_stack_info()
+    res.append(stack.pop())
+    stack.print_stack_info()
+    stack.push(6)
+    stack.print_stack_info()
+    res.append(stack.pop())
+    stack.print_stack_info()
+    stack.push(6)
+    stack.print_stack_info()
+    res.append(stack.pop())
+    stack.print_stack_info()
+    stack.push(6)
+    stack.print_stack_info()
+    res.append(stack.pop())
+    stack.print_stack_info()
+    
+    '''
     # 6
     stack.push(6)
     stack.print_stack_info()
@@ -147,3 +168,4 @@ if __name__ == "__main__":
     # 1 --> 7 --> 6
     stack.push(1)
     stack.print_stack_info()
+    '''
