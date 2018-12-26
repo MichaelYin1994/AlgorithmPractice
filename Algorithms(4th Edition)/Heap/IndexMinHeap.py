@@ -19,9 +19,6 @@ self.__init__(self, maxSize):
 self.__len__(self):
     返回堆的大小(self._count)。
 
-self.__iter__(self):
-    堆的迭代器，返回一个可迭代的对象。层序遍历堆元素。
-
 self.is_empty(self):
     检测堆是否为空，为空则返回True，否则返回False。
 
@@ -40,11 +37,23 @@ self.sink(self, pos):
 self.swim(self, pos):
     对堆中pos位置的元素进行上浮。
 
-def capacity(self):
+self.capacity(self):
     返回堆的最大容量。
 
-def extract_min(self):
-    提取堆中的最大元素。
+self.extract_min(self):
+    提取堆中的最小元素。
+
+self.contains(self, key):
+    是否包含索引为key的元素。是返回True，否则返回False。空堆抛出异常。
+
+self.min_key_index(self):
+    返回堆中最小元素的索引(key)。
+
+self.delete(self, key):
+    删除堆中索引为key的元素。
+
+self.change(self, key, value):
+    修改键值对，并恢复堆序。
 -------------------------------------------------------------------------------
 '''
 ###############################################################################
@@ -88,6 +97,7 @@ class IndexMinHeap(object):
         return self._key2node[self._node2key[0]]
     
     def delete(self, key):
+        assert key >= 0 and key < self._count, "Key is out of range !"
         nodePos = self._key2node[key]
         self.exchange(nodePos, self._count-1)
         self._count -= 1
@@ -108,7 +118,7 @@ class IndexMinHeap(object):
         self.exchange(0, self._count-1)
         self._count -= 1
         
-        # 下沉0号
+        # 下沉0号结点
         self.sink(0)
         self._values[keyMin] = None
         self._key2node[keyMin] = None
@@ -116,16 +126,13 @@ class IndexMinHeap(object):
         return valMin, keyMin
     
     def change(self, key, value):
+        assert key >= 0 and key < self._count, "Key is out of range !"
+        assert self.contains(key), "Key is not in the heap !"
         self._values[key] = value
         nodePos = self._key2node[key]
         # 存在swim不上去与sink不下去这两种情况，分别sink和swim
         self.sink(nodePos)
         self.swim(nodePos)
-    
-#    def change_key(self, key, value):
-#        self._values[key] = value
-#        self.sink(self._key2node[key])
-#        self.swim(self._key2node[key])
     
     def swim(self, pos):
         # 设想[5, 12, 3]这种有3个元素的堆来套问题
@@ -164,10 +171,10 @@ class IndexMinHeap(object):
         return self._values[self._node2key[pos_1]] < self._values[self._node2key[pos_2]]
 ###############################################################################
 if __name__ == "__main__":
-    values = [3.12, 0.32, 2.20,
-              1.02, 0.03, 0.67,
-              0.89, 1.12, 0.55,
-              0.63, 0.67, 0.67,
+    values = [3.12, 0.32, 2.20, 6.12,
+              1.02, 0.03, 0.67, 3.33,
+              0.89, 1.12, 0.55, 5.46,
+              0.63, 0.67, 0.67, 4.35,
               3.12, 0.03, 0.03, 0.03]
     
     maxSize = 100
@@ -181,7 +188,8 @@ if __name__ == "__main__":
 #    insertSeq = []
 #    for i in heap._node2key:
 #        insertSeq.append(heap._values[i])
+#    heap.delete(11)
+#    heap.change(10, 200)
     minVal = []
     for i in range(len(values)):
         minVal.append(heap.extract_min())
-    print(minVal)
