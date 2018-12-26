@@ -134,7 +134,7 @@ class BinarySearchTree():
         else:
             return node._size
     
-    # 最大的键
+    # 全树最大的键
     def minimum_key(self):
         return self._minimum_key(self._root)._key
     
@@ -146,7 +146,7 @@ class BinarySearchTree():
         else:
             return self._minimum_key(node._left)
     
-    # 最小的键
+    # 全树最小的键
     def maximum_key(self):
         return self._maximum_key(self._root)
     
@@ -183,7 +183,9 @@ class BinarySearchTree():
         else:
             return node
     
-    # 删除某一个键target
+    # 递归的删除某一个键target
+    # 450. Delete Node in a BST:
+    # https://leetcode.com/problems/delete-node-in-a-bst/description/
     def delete(self, target):
         self._root = self._delete(self._root, target)
         self._bstSize -= 1
@@ -196,18 +198,23 @@ class BinarySearchTree():
         elif target < node._key:
             node._left = self._delete(node._left, target)
         else:
+            # 确认node的左右孩子是否为空，确保后面删除的结点两个孩子都在
             if node._left == None:
                 return node._right
             if node._right == None:
                 return node._left
             
-            tmp = TreeNode(key=node._key, value=node._value, size=node._size)
-            tmp._left = node._left
-            tmp._right = node._right
+            # 保存当前结点node的各个值
+            tmpNode = TreeNode(key=node._key, value=node._value, size=node._size)
+            tmpNode._left = node._left
+            tmpNode._right = node._right
             
-            node = self._minimum_key(tmp._right)
-            node._right = self._delete_minimum_key(tmp._left)
-            node._left = tmp._left
+            # 关键操作，找到tmpNode的右边的后序结点，并覆盖node的值
+            node = self._minimum_key(tmpNode._right)
+            
+            # 删除将要删除的结点tmpNode的右子树的先序结点，并返回右子树根结点
+            node._right = self._delete_minimum_key(tmpNode._right)
+            node._left = tmpNode._left
         node._size = self._sub_tree_size(node._left) + self._sub_tree_size(node._right) + 1
         return node
     
@@ -306,17 +313,60 @@ class BinarySearchTree():
             currLevel = [nodeTmp for nodeTmp in nextLevel if nodeTmp != None]
         return ret
     
-    def tree_height_recursion(self):
-        pass
+    # 树的最大高度
+    # 104. Maximum Depth of Binary Tree:
+    # https://leetcode.com/problems/maximum-depth-of-binary-tree/description/
+    def tree_maximum_height_recursion(self):
+        return self._tree_maximum_height_recursion(self._root, 0)
     
-    def _tree_height_recursion(self):
-        pass
+    def _tree_maximum_height_recursion(self, node, currHeight):
+        if node == None:
+            return currHeight
+        leftHeight = self._tree_maximum_height_recursion(node._left, currHeight + 1)
+        rightHeight = self._tree_maximum_height_recursion(node._right, currHeight + 1)
+        return max(leftHeight, rightHeight)
     
-    def is_binary_tree(self):
-        pass
+    # 计算树的最小高度
+    # 最小深度定义为：从根结点出发到没有孩子的叶子结点的路径上的结点的个数
+    # 111. Minimum Depth of Binary Tree:
+    # https://leetcode.com/problems/minimum-depth-of-binary-tree/description/
+    def tree_minimum_height(self):
+        currStack = [self._root]
+        height = 1
+        while(currStack):
+            nextStack = []
+            for tmpNode in currStack:
+                if tmpNode._left == None and tmpNode._right == None:
+                    return height
+                else:
+                    nextStack.extend([tmpNode._left, tmpNode._right])
+            currStack = [node for node in nextStack if node is not None]
+            height += 1
+        return height
     
+    # 检查是否为二叉搜索树
+    # 98. Validate Binary Search Tree:
+    # https://leetcode.com/problems/validate-binary-search-tree/description/
     def is_binary_search_tree(self):
-        pass
+        if self._root is None:
+            return True
+        nodeStack = [self._root]
+        values = []
+        node = self._root._left
+        
+        # 必须nodeStack与node都空才推出循环，有可能nodeStack为空而node不
+        # 为空，继续往栈里压元素
+        while(nodeStack or node):
+            if node != None:
+                nodeStack.append(node)
+                node = node._left
+            else:
+                tmpNode = nodeStack.pop()
+                values.append(tmpNode._key)
+                node = tmpNode._right
+            if len(values) >= 2 and values[-1] <= values[-2]:
+                return False
+        return True
 ###############################################################################
 if __name__ == "__main__":
     values = [3.12, 0.32, 2.20, 6.12,
@@ -333,7 +383,9 @@ if __name__ == "__main__":
 #    bst.delete_maximum_key()
 #    bst.delete_minimum_key()
 #    bst.delete_minimum_key()
-    bst.delete(0.32)
+    totalKeys = bst.in_order_traversal()
+    bst.delete(0.03)
+    bst.delete(0.55)
     
     preOrder = bst.pre_order_traversal()
     inOrder = bst.in_order_traversal()
@@ -342,4 +394,7 @@ if __name__ == "__main__":
     print(bst.select(2))
     print(bst.floor(3))
     print(bst.ceiling(4))
+    print("Is binary search tree : {}".format(bst.is_binary_search_tree()))
+    print("Minimum height :{}".format(bst.tree_minimum_height()))
+    print("Maximum height :{}".format(bst.tree_maximum_height_recursion()))
     gc.collect()
