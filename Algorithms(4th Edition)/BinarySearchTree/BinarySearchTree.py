@@ -384,8 +384,8 @@ if __name__ == "__main__":
 #    bst.delete_minimum_key()
 #    bst.delete_minimum_key()
     totalKeys = bst.in_order_traversal()
-    bst.delete(0.03)
-    bst.delete(0.55)
+    bst.delete(0.63)
+    bst.delete(2.2)
     
     preOrder = bst.pre_order_traversal()
     inOrder = bst.in_order_traversal()
