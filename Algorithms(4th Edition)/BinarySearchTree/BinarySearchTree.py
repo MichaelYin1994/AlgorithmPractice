@@ -9,42 +9,72 @@ import gc
 '''
 -------------------------------------------------------------------------------
 Author: Michael Yin
-Modified Date: 2018/12/25
+Create Date: 2018/12/25
+Modified Date: 2019/1/2
 Mail: zhuoyin94@163.com
 Title: 二叉搜索树(Binary Search Tree)的实现。
 -------------------------------------------------------------------------------
 self.__init__(self, maxSize):
-    初始化相关参数，需要提供堆的最大尺寸。而self._count代表目前的优先队列队尾的位置。
+    初始化相关参数，其中root初始化为None，初始化bstSize为搜索树的大小。
 
-self.__len__(self):
-    返回堆的大小(self._count)。
+self.__contains__(self):
+    是否包含特定的键值对。
 
-self.__iter__(self):
-    堆的迭代器，返回一个可迭代的对象。层序遍历堆元素。
+self.floor(self, target):
+    小于等于target的最大键。
 
-self.is_empty(self):
-    检测堆是否为空，为空则返回True，否则返回False。
+self._floor(self, node, target):
+    floor的私有方法的实现。
 
-self.insert(self, item):
-    为堆插入一个元素。
+self.ceiling(self, target):
+    大于等于target的最大键e。
 
-self.exchange(self, pos_1, pos_2):
-    交换堆中的两个元素的位置。
+self._ceiling(self, target):
+    ceiling方法的私有的实现。
+
+self.insert(self, key, value):
+    插入键值对。
     
-self.less(self, pos_1, pos_2):
-    比较堆中两个元素的大小。
+self._insert(self, node, key, value):
+    插入键值对的私有方法。
 
-self.sink(self, pos):
-    对堆中pos位置的元素进行下沉。
+self._sub_tree_size(self, pos):
+    计算以pos为根结点的树的结点个数。
     
+self.minimum_key(self):
+    BST的最小键。
+
+self._maximum_key(self, node)：
+    BST的最小键搜索递归。
+    
+self.select(self, k):
+    BST中key排名为k的结点的值。
+
+self._select(self, node, k):
+    BST中key排名为k的结点的值，递归搜索。
+
+self.delete(self, target):
+    删除key为target的结点。
+
+self._delete(self, node, target):
+    删除方法的递归。
+
+self.delete_minimum_key(self):
+    删除最小的键。
+
+self._delete_minimum_key(self, node):
+    递归删除最小键。
+
+
+
 self.swim(self, pos):
     对堆中pos位置的元素进行上浮。
 
-def capacity(self):
-    返回堆的最大容量。
+self.swim(self, pos):
+    对堆中pos位置的元素进行上浮。
 
-def extract_min(self):
-    提取堆中的最大元素。
+self.swim(self, pos):
+    对堆中pos位置的元素进行上浮。
 -------------------------------------------------------------------------------
 '''
 ###############################################################################
@@ -209,7 +239,7 @@ class BinarySearchTree():
             tmpNode._left = node._left
             tmpNode._right = node._right
             
-            # 关键操作，找到tmpNode的右边的后序结点，并覆盖node的值
+            # 关键操作，找到tmpNode的右边的后继结点，并覆盖node的值
             node = self._minimum_key(tmpNode._right)
             
             # 删除将要删除的结点tmpNode的右子树的先序结点，并返回右子树根结点
@@ -288,19 +318,38 @@ class BinarySearchTree():
                 node = node._right
         return values
     
-#    def post_order_traversal(self):
-#        stack = []
-#        values = []
-#        node = self._root
-#        while(len(stack) != 0 or node):
-#            if node != None:
-#                stack.append(node)
-#                node = node._left
-#            else:
-#                node = stack.pop()
-#                values.append(node._key)
-#                node = node._right
-#        return values
+    # https://leetcode.com/problems/binary-tree-postorder-traversal/discuss/45785/Share-my-two-Python-iterative-solutions-post-order-and-modified-preorder-then-reverse?orderBy=most_votes
+    # left-right-root ==> root-right-left
+    def post_order_traversal(self):
+        stack = []
+        values = []
+        node = self._root
+        while stack or node:
+            if node is not None:
+                stack.append(node)
+                values.append(node._key)
+                node = node._right
+            else:
+                node = stack.pop()
+                node = node._left
+        return values[::-1]
+    
+    def post_order_traversal_flag(self):
+        stack = [(self._root, False)]
+        node = self._root
+        values = []
+        while stack:
+            node, used = stack.pop()
+            if node is not None:
+                if used is True:
+                    values.append(node._key)
+                else:
+                    # 右结点先入栈，然后是左结点入栈，这样stack.pop出来的先是左结点
+                    # 然后是右结点，符合后序遍历的顺序
+                    stack.append((node, True))
+                    stack.append((node._right, False))
+                    stack.append((node._left, False))
+        return values
     
     def level_order_traversal(self):
         node = self._root
@@ -389,6 +438,8 @@ if __name__ == "__main__":
     
     preOrder = bst.pre_order_traversal()
     inOrder = bst.in_order_traversal()
+    postOrder = bst.post_order_traversal()
+    postOrderFlag = bst.post_order_traversal_flag()
     levelOrder = bst.level_order_traversal()
     
     print(bst.select(2))

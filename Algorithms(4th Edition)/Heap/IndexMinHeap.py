@@ -9,7 +9,8 @@ Created on Sun Dec 23 17:47:49 2018
 '''
 -------------------------------------------------------------------------------
 Author: Michael Yin
-Modified Date: 2018/12/24
+Create Date: 2018/12/24
+Modified Date: 2019/1/2
 Mail: zhuoyin94@163.com
 Title: 最小索引堆(Indexed Minimum Heap)的实现。
 -------------------------------------------------------------------------------
@@ -85,12 +86,16 @@ class IndexMinHeap(object):
         self._key2node[key] = self._count
         self.swim(self._count)
         self._count += 1
-        
+    
     def decrease_key(self, key, value):
-        pass
+        if self.less(value, self._values[key]):
+            self._values[key] = value
+        self.swim(self._key2node[key])
     
     def increase_key(self, key, value):
-        pass
+        if self.less(self._values[key], value):
+            self._values[key] = value
+        self.sink(self._key2node[key])
     
     def min_key_index(self):
         assert self._count > 0, "Empty heap!"
