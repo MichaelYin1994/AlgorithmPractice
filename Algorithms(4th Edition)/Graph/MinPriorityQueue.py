@@ -14,7 +14,7 @@ def read_graph(filePath=None):
     return data
 ###############################################################################
 ###############################################################################
-class IndexMinHeap():
+class MinPriorityQueue():
     def __init__(self, maxSize):
         # Count扮演了堆目前的最大尺寸的角色
         self._keys = maxSize * [None]
@@ -137,7 +137,7 @@ if __name__ == "__main__":
     edges = edges[2:]
     maxHeapSize = int(numEdges)
     
-    pq = IndexMinHeap(maxHeapSize)
+    pq = MinPriorityQueue(maxHeapSize)
     for edge in edges:
         pq.insert(edge[2], Edge(int(edge[0]), int(edge[1]), edge[2]))
     

@@ -6,8 +6,23 @@ Created on Wed Dec 12 16:19:41 2018
 """
 from UndirectedGraphEdge import Edge, UndirectedGraphEdge, read_graph
 from UnionFind import WeightedQuickUnionPathCompression
-from MinIndexHeap import IndexMinHeap
+from MinPriorityQueue import MinPriorityQueue
 from MyQueue import Queue
+from IndexMinHeap import IndexMinHeap
+from functools import wraps
+import time
+###############################################################################
+def timefn(fn):
+    @wraps(fn)
+    def measure_time(*args, **kwargs):
+        start = time.time()
+        result = fn(*args, **kwargs)
+        end = time.time()
+        print("@timefn: " + fn.__name__ + " took " + str(end-start) + " seconds")
+        return result
+    return measure_time
+
+###############################################################################
 ###############################################################################
 class LazyPrimMst():
     def __init__(self, edges):
@@ -29,13 +44,13 @@ class LazyPrimMst():
             # 两个顶点都已经在最小生成树之中
             if self.marked[edge.other(vId)] == False:
                 self.weightPriorityQueue.insert(edge.weight, edge)
-        
+    @timefn 
     def lazy_prim(self):
         numEdges = len(self.edges)
         numVertices = len(self.graph.vertList)
         
         # 初始化对于边的优先队列与队列
-        self.weightPriorityQueue = IndexMinHeap(numEdges)
+        self.weightPriorityQueue = MinPriorityQueue(numEdges)
         self.mstQueue = Queue()
         self.marked = [False] * numVertices
         
@@ -56,8 +71,11 @@ class LazyPrimMst():
                 self.visit(wId)
     
     def print_mst(self):
+        # 构建最小生成树
         self.lazy_prim()
         res = []
+        
+        # 从最小生成树中获取边
         while(self.mstQueue.is_empty() != True):
             edgeTmp = self.mstQueue.dequeue()
             res.append([edgeTmp.either(), edgeTmp.other(edgeTmp.either())])
@@ -84,39 +102,41 @@ class PrimMst():
             # 边的两端都是树节点，失效这条边
             if self.marked[wId] == True:
                 continue
+            # 维护edgeTo[]数组与distTo[]数组
             if edge.weight < self.distTo[wId]:
                 self.distTo[wId] = edge.weight
                 self.edgeTo[wId] = edge
                 
                 # 更新与树结点相连的非树顶点的最小边权值
-                if self.weightPriorityQueue.contains(wId):
-                    self.weightPriorityQueue.change(edge.weight, edge)
+                if self.indexMinHeap.contains(wId):
+                    self.indexMinHeap.change(wId, edge.weight)
                 else:
-                    self.weightPriorityQueue.insert(edge.weight, edge)
-        
+                    self.indexMinHeap.insert(wId, edge.weight)
+    @timefn
     def prim(self):
-        numEdges = len(self.edges)
         numVertices = len(self.graph.vertList)
         
-        # 初始化edgeTo[], marked[]数组
+        # 初始化edgeTo[], marked[], distTo[]数组
         self.marked = [False] * numVertices
         self.edgeTo = [None] * numVertices
         self.distTo = [float("inf")] * numVertices
         
         # 初始化对于边的优先队列与队列
-        self.weightPriorityQueue = IndexMinHeap(numEdges)
+        self.indexMinHeap = IndexMinHeap(numVertices)
         
         self.distTo[0] = 0
-        self.visit(0)
-        while(self.weightPriorityQueue.__len__ != 0):
-            weight, edge = self.weightPriorityQueue.extract_min()
-            self.visit(edge.other(edge.either()))
-        
+        self.indexMinHeap.insert(0, 0)
+        while(len(self.indexMinHeap) != 0):
+            valMin, keyMin = self.indexMinHeap.extract_min()
+            self.visit(keyMin)
+            
     def print_mst(self):
         self.prim()
         res = []
         for i in range(len(self.edgeTo)):
-            res.append([self.edgeTo[i].either(), self.edgeTo[i].other(self.edgeTo[i].either())])
+            if self.edgeTo[i] is not None:
+                res.append([self.edgeTo[i].either(),
+                            self.edgeTo[i].other(self.edgeTo[i].either())])
         return res
 ###############################################################################    
 ###############################################################################
@@ -134,12 +154,13 @@ class KruskalMst():
     
     # Tips: 理论上不需要用到存储边的图，只需要将边按权加入优先队列，
     # 然后挨个索引就可以了
+    @timefn
     def kruskal(self):
         numEdges = len(self.edges)
         numVertices = len(self.graph.vertList)
         
         # 初始化对于边的优先队列与队列
-        self.weightPriorityQueue = IndexMinHeap(numEdges)
+        self.weightPriorityQueue = MinPriorityQueue(numEdges)
         self.mstQueue = Queue()
         self.uf = WeightedQuickUnionPathCompression(numVertices)
         
@@ -168,25 +189,31 @@ class KruskalMst():
             edgeTmp = self.mstQueue.dequeue()
             res.append([edgeTmp[0], edgeTmp[1]])
         return res
+    
 ###############################################################################    
 ###############################################################################
 if __name__ == "__main__":
-    edges = read_graph("tinyEWG.txt")
+    edges = read_graph("mediumEWG.txt")
     numVertices = edges[0][0]
     numEdges = edges[1][0]
     edges = edges[2:]
     
     # Prim算法的延时形式
-#    lazyprim = LazyPrimMst(edges)
-#    lazyprim.construct_graph()
-#    res_1 = lazyprim.print_mst()
+    lazyprim = LazyPrimMst(edges.copy())
+    lazyprim.construct_graph()
+    res_1 = lazyprim.print_mst()
     
     # Prim算法的实时形式
-    prim = PrimMst(edges)
+    prim = PrimMst(edges.copy())
     prim.construct_graph()
     res_2 = prim.print_mst()
     
     # Kruskal算法
-#    kruskal = KruskalMst(edges)
-#    kruskal.construct_graph()
-#    res_3 = kruskal.print_mst()
+    kruskal = KruskalMst(edges.copy())
+    kruskal.construct_graph()
+    res_3 = kruskal.print_mst()
+    
+#    # Check results
+#    r_1 = set([str(i[0]) + "-" + str(i[1]) for i in res_1])
+#    r_2 = set([str(i[0]) + "-" + str(i[1]) for i in res_2])
+#    r_3 = set([str(i[0]) + "-" + str(i[1]) for i in res_3])

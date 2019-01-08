@@ -1,9 +1,10 @@
 # -*- coding: utf-8 -*-
 """
-Created on Wed Dec 12 10:05:20 2018
+Created on Thu Jan  3 00:15:32 2019
 
 @author: XPS13
 """
+
 ###############################################################################
 def read_graph(filePath=None):
     assert filePath, "Invalid Path !"
@@ -14,27 +15,24 @@ def read_graph(filePath=None):
     return data
 
 ###############################################################################
-class Edge():
+class DirectedEdge():
     def __init__(self, vertice_1, vertice_2, weight):
         self.vertice_1 = vertice_1
         self.vertice_2 = vertice_2
         self.weight = weight
     
+    def __str__(self):
+        return str(self.vertice_1) + "-->" + str(self.vertice_2) + " " + str(self.weight)
+    
     def get_weight(self):
         return self.weight
     
-    # 返回一个顶点的编号
-    def either(self):
+    def origin(self):
         return self.vertice_1
     
-    # 返回边的另外一个顶点的编号
-    def other(self, verticeId):
-        if verticeId == self.vertice_1:
-            return self.vertice_2
-        elif verticeId == self.vertice_2:
-            return self.vertice_1
-        else:
-            return None
+    def destination(self):
+        return self.vertice_2
+
     # compare_to方法，传入一个Edge的实例，返回
     # 边的权值的对比结果：
     # +1: 该边大于传入的边
@@ -48,9 +46,10 @@ class Edge():
             return 1
         elif self.weight < weightTmp:
             return -1
-
+        
 ###############################################################################
-class UndirectedGraphEdge():
+# vertList should be edgeList
+class DirectedGraphEdge():
     def __init__(self):
         self.vertList = {}
         self.numEdges = 0
@@ -60,28 +59,24 @@ class UndirectedGraphEdge():
             self.vertList[first] = []
         if second not in self.vertList:
             self.vertList[second] = []
-        edge = Edge(first, second, weight)
+        edge = DirectedEdge(first, second, weight)
         
         bagListTmp = self.vertList[first]
         bagListTmp.append(edge)
         self.vertList[first] = bagListTmp
-        
-        bagListTmp = self.vertList[second]
-        bagListTmp.append(edge)
-        self.vertList[second] = bagListTmp
         self.numEdges += 1
     
     # 返回Edge列表
     def get_vertices(self):
         return list(self.vertList.keys())
-    
+
 ###############################################################################
 if __name__ == "__main__":
-    edges = read_graph("tinyEWG.txt")
+    edges = read_graph("mediumEWD.txt")
     numVertices = edges[0][0]
     numEdges = edges[1][0]
     edges = edges[2:]
     
-    g = UndirectedGraphEdge()
+    g = DirectedGraphEdge()
     for edge in edges:
         g.add_edge(int(edge[0]), int(edge[1]), weight=edge[2])
