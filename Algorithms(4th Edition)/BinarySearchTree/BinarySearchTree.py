@@ -308,7 +308,7 @@ class BinarySearchTree():
         stack = []
         values = []
         node = self._root
-        while(len(stack) != 0 or node):
+        while(stack or node):
             if node != None:
                 stack.append(node)
                 node = node._left

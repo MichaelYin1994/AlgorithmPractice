@@ -85,9 +85,8 @@ class DijkstraSP():
             edgeTmp = self.edgeTo[targetId]
         
         for i in stack:
-            res = res + str(i) + "-->"
-        return res
-        
+            res = res + str(i) + " --> "
+        return res[:-5]
         
 ###############################################################################    
 ###############################################################################
@@ -103,6 +102,6 @@ if __name__ == "__main__":
     sp.dijkstra_shortest_path(source=0)
     res = sp.distTo
     
-    sp.distance_to(targetId=6)
-    print(sp.has_path_to(targetId=6))
-    print(sp.path_to(targetId=6))
+    sp.distance_to(targetId = 78)
+    print(sp.has_path_to(targetId = 6))
+    print(sp.path_to(targetId = 6))
